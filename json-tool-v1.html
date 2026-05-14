@@ -1,0 +1,115 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>JSON格式化工具 - 专业版</title>
+  <style>
+       body{
+             background:#1e1e2f;
+             color: #eee;
+             font-family: system-ui,monospace;
+             padding:20px;
+  }
+.container {
+   max-width:1200px;
+   margin: 0 auto;
+  }
+
+textarea {
+   width:100%;
+   height: 200px;
+   background: #2d2d3a;
+   color:#fff;
+   border: 1px solid #555;
+   font-family: monospace;
+   font-size: 14px;
+padding: 10px;
+  }
+
+button {
+   background: #0f6bff;
+   color: white;
+   border: none;
+   padding: 8px 20px;
+   margin: 10px 10px 0 0;
+   font-size: 16px;
+   cursor: pointer;
+   border-radius: 6px;
+ }
+
+button:hover {
+   background: #0a56cc;
+ }
+.output-area {
+   background: #2d2d3a;
+   border: 1px solid #555;
+   padding: 10px;
+   font-family: monospace;
+   white-space: pre-wrap;
+   margin-top: 10px;
+   min-height:200px;
+ }
+
+.error {
+   color: #ff8888;
+ }
+ </style>
+</head>
+<body>
+<div class="container">
+   <h2>JSON 格式化工具</h2>
+   <textarea id="jsonInput" placeholder='粘贴JSON,例如:{"name":"张三","age":20}'></textarea>
+   <br>
+   <button onclick="formatJSON()"> 格式化</button>
+   <button onclick="compressJSON()"> 压缩</button>
+   <button onclick="clearAll()"> 清空</button>
+   <div id="output" class="output-area">等待输入...</div>
+</div>
+
+<script>
+
+function formatJSON(){
+let input = document.getElementById('jsonInput').value;
+let outputDiv = document.getElementById('output');
+
+try{
+
+let obj = JSON.parse(input);
+
+let formatted = JSON.stringify(obj,null,2);
+outputDiv.innerHTML = formatted;
+outputDiv.classList.remove('error');
+} catch(e){
+outputDiv.innerHTML = '❌️JSON解析错误：'+e.message;
+outputDiv.classList.add('error');
+ }
+}
+
+function compressJSON() {
+let input = document.getElementById('jsonInput').value;
+let outputDiv = document.getElementById('output');
+
+try{
+let obj = JSON.parse(input);
+let compressed = JSON.stringify(obj);
+outputDiv.innerHTML = compressed;
+outputDiv.classList.remove('error');
+} catch(e) {
+   outputDiv.innerHTML = '❌️JSON 解析错误：'+e.message;
+   outputDiv.classList.add('error');
+}
+
+}
+
+function clearAll() {
+document.getElementById('jsonInput').value = '';
+document.getElementById('output').innerHTML = '已清空，可以输入新的JSON.';
+document.getElementById('output').classList.remove('error');
+}
+
+
+</script>
+</body>
+</html>
