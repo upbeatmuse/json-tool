@@ -1,0 +1,220 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>JSON格式化工具 - 专业版</title>
+  <style>
+       body{
+             background:#1e1e2f;
+             color: #eee;
+             font-family: system-ui,monospace;
+             padding:20px;
+  }
+.container {
+   max-width:1200px;
+   margin: 0 auto;
+  }
+
+textarea {
+   width:100%;
+   height: 200px;
+   background: #2d2d3a;
+   color:#fff;
+   border: 1px solid #555;
+   font-family: monospace;
+   font-size: 14px;
+padding: 10px;
+  }
+
+button {
+   background: #0f6bff;
+   color: white;
+   border: none;
+   padding: 8px 20px;
+   margin: 10px 10px 0 0;
+   font-size: 16px;
+   cursor: pointer;
+   border-radius: 6px;
+ }
+
+button:hover {
+   background: #0a56cc;
+ }
+.output-area {
+   background: #2d2d3a;
+   border: 1px solid #555;
+   padding: 10px;
+   font-family: monospace;
+   white-space: pre-wrap;
+   margin-top: 10px;
+   min-height:200px;
+ }
+
+.error {
+   color: #ff8888;
+ }
+ </style>
+</head>
+<body>
+<div class="container">
+   <h2>JSON 格式化工具</h2>
+
+ <p style="color:#ccc;font-size:14px;">免费剩余次数：<span id="remainingCount">5</span>次
+
+    <button onclick="showActivateDialog()" style="background:#555;padding:2px 8px; margin-left:10px;">输入激活码</button>
+ 
+ </p>
+
+   <textarea id="jsonInput" placeholder='粘贴JSON,例如:{"name":"张三","age":20}'></textarea>
+   <br>
+   <button onclick="formatJSON()"> 格式化</button>
+   <button onclick="compressJSON()"> 压缩</button>
+   <button onclick="clearAll()"> 清空</button>
+   <button onclick="resetAll()">重置(测试用)</button>
+   <div id="output" class="output-area">等待输入...</div>
+</div>
+
+<script>
+
+let freeLimit = 5;
+let storageKey = 'jsonTool';
+
+
+function getState() {
+let defaultState = {remaining:freeLimit,unlocked:false};
+let stored = localStorage.getItem(storageKey);
+if(!stored) {
+    return defaultState;
+}
+try{
+let state = JSON.parse(stored);
+state.unlocked = !!state.unlocked;
+if(state.remaining === undefined) state.remaining = freeLimit;
+return state;
+} catch(e) {
+    return defaultState;
+ }
+
+}
+
+function saveState(state) {
+    localStorage.setItem(storageKey,JSON.stringify(state));
+}
+
+
+function checkAndConsume() {
+let state = getState();
+if(state.unlocked) {
+return true;
+}
+
+if (state.remaining > 0){
+    state.remaining--;
+    saveState(state);
+    return true;
+} else {
+    alert('免费次数已用完！请支付9.9￥解锁免费使用。\n支付后联系我获取激活码。');
+    return false;
+}
+
+}
+
+function activate(secret) {
+    if(secret === 'upbeat2026') {
+    let state = getState();
+    state.unlocked = true;
+    saveState(state);
+    alert('激活成功！现在可以无限次使用啦🎉');
+    location.reload();
+} else{
+    alert('激活码错误，请核对后重新输入');
+}
+}
+
+
+function showActivateDialog() {
+    let code = prompt('请输入激活码：');
+    if(code){
+      activate(code);
+}
+
+}
+
+
+
+
+
+function formatJSON(){
+if(!checkAndConsume()) return;
+let input = document.getElementById('jsonInput').value;
+let outputDiv = document.getElementById('output');
+
+try{
+
+let obj = JSON.parse(input);
+
+let formatted = JSON.stringify(obj,null,2);
+outputDiv.innerHTML = formatted;
+outputDiv.classList.remove('error');
+} catch(e){
+outputDiv.innerHTML = '❌️JSON解析错误：'+e.message;
+outputDiv.classList.add('error');
+ }
+    updateRemainingDisplay();
+}
+
+function compressJSON() {
+if(!checkAndConsume()) return;
+let input = document.getElementById('jsonInput').value;
+let outputDiv = document.getElementById('output');
+
+try{
+let obj = JSON.parse(input);
+let compressed = JSON.stringify(obj);
+outputDiv.innerHTML = compressed;
+outputDiv.classList.remove('error');
+} catch(e) {
+   outputDiv.innerHTML = '❌️JSON 解析错误：'+e.message;
+   outputDiv.classList.add('error');
+}
+updateRemainingDisplay();
+}
+
+function clearAll() {
+document.getElementById('jsonInput').value = '';
+document.getElementById('output').innerHTML = '已清空，可以输入新的JSON.';
+document.getElementById('output').classList.remove('error');
+}
+
+function updateRemainingDisplay() {
+    let state = getState();
+    let span = document.getElementById('remainingCount');
+    if(span) {
+      if(state.unlocked) {
+        span.innerText = '∞ (已解锁)';
+} else{
+      span.innerText = state.remaining;
+}
+}
+}
+
+
+function resetAll() {
+localStorage.removeItem('jsonTool');
+alert('已重置为初始状态 （未解锁，剩余5次免费使用）');
+location.reload();
+}
+
+
+
+window.onload = function() {
+    updateRemainingDisplay();
+};
+
+
+
+</script>
+</body>
+</html>
